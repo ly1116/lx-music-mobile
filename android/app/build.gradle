@@ -135,12 +135,20 @@ android {
             } else {
                 def keystorePropertiesFile = rootProject.file("keystore.properties")
                 def keystoreProperties = new Properties()
-                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+                if (keystorePropertiesFile.exists()) {
+                    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
+                    storeFile file(keystoreProperties['storeFile'])
+                    storePassword keystoreProperties['storePassword']
+                    keyAlias keystoreProperties['keyAlias']
+                    keyPassword keystoreProperties['keyPassword']
+                } else {
+                    // 无签名配置（fork / 云端 debug 构建）时回退到 debug 签名
+                    storeFile file('debug.keystore')
+                    storePassword 'android'
+                    keyAlias 'androiddebugkey'
+                    keyPassword 'android'
+                }
             }
         }
         debug {
