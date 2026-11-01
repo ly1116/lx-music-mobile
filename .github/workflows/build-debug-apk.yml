@@ -1,9 +1,11 @@
 name: Build Debug APK (Cloud)
 
 # 云端编译 debug 包，本机无需安装 JDK / Android SDK。
+# 原理：GitHub 的 ubuntu-latest 运行机已预装 Android SDK（与官方 release 流水线一致），
+#      不再使用已废弃且不兼容新版 runner 的 android-actions/setup-android。
 # 触发方式：
 #   1. 手动：GitHub 仓库 → Actions → 选本工作流 → Run workflow
-#   2. 自动：push 到 dev 分支时自动构建
+#   2. 自动：push 到 master / dev 分支时自动构建
 # 构建完成后在 Summary 页面下载 lx-music-debug-apk 产物（装 universal 那个即可）。
 
 on:
@@ -16,6 +18,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,13 +37,20 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
+      # GitHub runner 已预装 Android SDK（含 NDK），这里只定位 sdkmanager、补许可，并补齐编译所需组件
       - name: Install Android SDK packages & accept licenses
         run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0" "ndk;26.1.10909125"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -n1)
+          if [ -z "$SDKMANAGER" ]; then SDKMANAGER=$(command -v sdkmanager || true); fi
+          echo "Using sdkmanager: ${SDKMANAGER:-NOT FOUND}"
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses || true
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;35.0.0" \
+            "ndk;26.1.10909125"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
 
       - name: Install JS dependencies
         run: npm ci
