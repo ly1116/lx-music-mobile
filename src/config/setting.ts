@@ -30,29 +30,48 @@ const mergeSetting = (originSetting: LX.AppSetting, targetSetting?: Partial<LX.A
       for (const key of targetSettingKeys as Array<keyof LX.AppSetting>) {
         const targetValue: any = targetSetting[key]
         const isPrimitive = checkPrimitiveType(targetValue)
-        // if (checkPrimitiveType(value)) {
-        if (!isPrimitive || targetValue == originSettingCopy[key] || originSettingCopy[key] === undefined) continue
+        const isArray = Array.isArray(targetValue)
+        if (isPrimitive) {
+          if (targetValue == originSettingCopy[key] || originSettingCopy[key] === undefined) continue
+        } else if (isArray) {
+          // 数组按内容替换
+          if (originSettingCopy[key] === undefined) continue
+          const originArr: any[] = originSettingCopy[key] as any[]
+          const changed = !Array.isArray(originArr) ||
+            originArr.length !== targetValue.length ||
+            targetValue.some((v: any, i: number) => v !== originArr[i])
+          if (!changed) continue
+        } else {
+          // 普通对象当前未实现深合并，保持原值
+          continue
+        }
         updatedSettingKeys.push(key)
         updatedSetting[key] = targetValue
         // @ts-expect-error
         originSettingCopy[key] = targetValue
-        // } else {
-        //   if (!isPrimitive && currentValue != undefined) handleMergeSetting(value, currentValue)
-        // }
       }
     } else {
       for (const key of originSettingKeys as Array<keyof LX.AppSetting>) {
         const targetValue: any = targetSetting[key]
+        if (targetValue === undefined) continue
         const isPrimitive = checkPrimitiveType(targetValue)
-        // if (checkPrimitiveType(value)) {
-        if (!isPrimitive || targetValue == originSettingCopy[key]) continue
+        const isArray = Array.isArray(targetValue)
+        if (isPrimitive) {
+          if (targetValue == originSettingCopy[key]) continue
+        } else if (isArray) {
+          if (originSettingCopy[key] === undefined) continue
+          const originArr: any[] = originSettingCopy[key] as any[]
+          const changed = !Array.isArray(originArr) ||
+            originArr.length !== targetValue.length ||
+            targetValue.some((v: any, i: number) => v !== originArr[i])
+          if (!changed) continue
+        } else {
+          continue
+        }
         updatedSettingKeys.push(key)
         updatedSetting[key] = targetValue
         // @ts-expect-error
         originSettingCopy[key] = targetValue
-        // } else {
-        //   if (!isPrimitive && currentValue != undefined) handleMergeSetting(value, currentValue)
-        // }
       }
     }
   }

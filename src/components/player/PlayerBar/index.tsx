@@ -6,20 +6,19 @@ import Pic from './components/Pic'
 import Title from './components/Title'
 import PlayInfo from './components/PlayInfo'
 import ControlBtn from './components/ControlBtn'
+import GlassCard from '@/components/common/GlassCard'
 import { createStyle } from '@/utils/tools'
 // import { useSettingValue } from '@/store/setting/hook'
-import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 
 
 export default memo(({ isHome = false }: { isHome?: boolean }) => {
   // const { onLayout, ...layout } = useLayout()
   const { keyboardShown } = useKeyboard()
-  const theme = useTheme()
   const autoHidePlayBar = useSettingValue('common.autoHidePlayBar')
 
   const playerComponent = useMemo(() => (
-    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
+    <GlassCard radius={0} style={{ ...styles.container }}>
       <Pic isHome={isHome} />
       <View style={styles.center}>
         <Title isHome={isHome} />
@@ -31,8 +30,8 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
       <View style={styles.right}>
         <ControlBtn />
       </View>
-    </View>
-  ), [theme, isHome])
+    </GlassCard>
+  ), [isHome])
 
   // console.log('render pb')
 

@@ -295,6 +295,24 @@ const defaultThemes = [
       'c-badge-tertiary': 'var(c-primary-light-100)',
     },
   },
+  {
+    id: 'neon',
+    name: '霓虹幻境',
+    isDark: true,
+    config: {
+      primary: 'rgb(139, 92, 246)',
+      font: 'rgb(255, 255, 255)',
+      'c-app-background': 'rgba(12, 12, 24, 0.55)',
+      'c-main-background': 'rgba(22, 22, 40, 0.82)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': '#22d3ee',
+      'c-badge-tertiary': '#f472b6',
+    },
+  },
 ]
 
 const themes = defaultThemes.map(({ config: { primary, font, ...extInfo }, ...themeInfo }) => {

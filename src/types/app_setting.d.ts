@@ -172,6 +172,21 @@ declare global {
       'player.isEnableAudioOffload': boolean
 
       /**
+       * 是否启用音效（均衡器）
+       */
+      'player.equalizer.enable': boolean
+
+      /**
+       * 音效预设索引，-1 表示使用手动均衡器
+       */
+      'player.equalizer.preset': number
+
+      /**
+       * 手动均衡器各频段增益（单位：毫贝尔，0 为平直）
+       */
+      'player.equalizer.bands': number[]
+
+      /**
        * 是否显示歌词翻译
        */
       'player.isShowLyricTranslation': boolean
