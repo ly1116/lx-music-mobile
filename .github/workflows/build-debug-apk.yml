@@ -56,7 +56,11 @@ jobs:
         run: npm ci
 
       - name: Build debug APK
-        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+        run: |
+          # 显式生成 JS bundle 到 android/app/src/main/assets，确保 Gradle 打包的 APK 内含 index.android.bundle
+          # （避免 RN Gradle 自动打包任务在某些 CI 环境下被跳过导致红屏 "Unable to load script"）
+          npm run bundle-android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
